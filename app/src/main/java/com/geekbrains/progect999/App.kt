@@ -6,8 +6,10 @@ import android.util.Log
 class App : Application() {
 
     private val handleDeath = HandleDeath.Base()
+    lateinit var mainRepresentative:MainRepresentative
     override fun onCreate() {
         super.onCreate()
+        mainRepresentative = MainRepresentative.Base(UiObservable.Single())
         val processId = android.os.Process.myPid()
         log("app onCreate $processId")
     }
