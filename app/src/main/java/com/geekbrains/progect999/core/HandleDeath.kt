@@ -1,30 +1,34 @@
-package com.geekbrains.progect999
+package com.geekbrains.progect999.core
 
+/**
+ * обработка смерти
+ */
 interface HandleDeath {
+    /**
+     * первое открытие
+     */
     fun firstOpening()
+    /**
+     * была ли смерть
+     */
     fun wasDeathHappened():Boolean
+    /**
+     * смерть обработана
+     */
     fun deathHandled()
-    class Base():HandleDeath{
+    class Base(): HandleDeath {
         /**
          * смерть случилась
          */
         private var deathHappened = true
-
-        /**
-         * первое открытие
-         */
         override fun firstOpening() {
            deathHappened = false
         }
-        /**
-         * была ли смерть
-         */
+
         override fun wasDeathHappened():Boolean {
             return deathHappened
         }
-        /**
-         * смерть обработана
-         */
+
         override fun deathHandled() {
             deathHappened = false
         }

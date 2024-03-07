@@ -1,18 +1,20 @@
-package com.geekbrains.progect999
+package com.geekbrains.progect999.core
 
 import androidx.annotation.MainThread
-import androidx.annotation.StringRes
 
-interface UiObservable<T:Any> : UiUpdate<T>{
+interface UiObservable<T:Any> : UiUpdate<T> ,UpdateObserver<T>{
     /**
      *обновить наблюдатель
      */
-    fun updateObserver(uiObserver: UiObserver<T> = UiObserver.Empty())
 
-    class Single<T : Any> : UiObservable<T> {
+
+    open class Single<T : Any> : UiObservable<T> {
+        @Volatile
         private var cache : T? = null
         @Volatile
         private var observer: UiObserver<T> = UiObserver.Empty()
+
+
         @MainThread
         override fun updateObserver(uiObserver: UiObserver<T>) = synchronized(Single::class.java) {
             observer = uiObserver
@@ -43,10 +45,14 @@ interface UiUpdate<T : Any>{
     fun update(data : T)
 }
 
+interface UpdateObserver<T:Any>{
+    fun updateObserver(uiObserver: UiObserver<T> = UiObserver.Empty())
+}
 
-interface UiObserver<T:Any> : UiUpdate<T>{
+
+interface UiObserver<T:Any> : UiUpdate<T> {
     fun isEmpty():Boolean = false
-    class Empty<T : Any> : UiObserver<T>{
+    class Empty<T : Any> : UiObserver<T> {
         /**
          * пусто?
          */

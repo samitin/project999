@@ -2,4 +2,7 @@
     <string name="app_name">progect999</string>
     <string name="new1">New one</string>
     <string name="new2">new2</string>
+    <string name="playing">Playing</string>
+    <string name="play">Play</string>
+    <string name="subsribe">subsribe</string>
 </resources>
