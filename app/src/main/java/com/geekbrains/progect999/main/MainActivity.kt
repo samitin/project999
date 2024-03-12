@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() ,ProvideRepresentative{
         representative.showDashboard(savedInstanceState == null)
         //getSharedPreferences()
 
-        (application as App).activityCreated(savedInstanceState == null)
+        //(application as App).activityCreated(savedInstanceState == null)
 
     }
 
@@ -48,4 +48,6 @@ class MainActivity : AppCompatActivity() ,ProvideRepresentative{
 }
 
 
-interface ActivityCallBack : UiObserver<Screen>
+interface ActivityCallBack : UiObserver<Screen>{
+    override fun isEmpty(): Boolean = false
+}

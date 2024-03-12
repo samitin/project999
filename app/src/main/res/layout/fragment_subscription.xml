@@ -5,9 +5,23 @@
     android:background="@color/white"
     android:clickable="true"
     android:focusable="true">
-    <Button
+    <com.geekbrains.progect999.core.CustomButton
         android:id="@+id/subscribeButton"
         android:text="@string/subsribe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+    <com.geekbrains.progect999.core.CustomProgressBar
+        android:id="@+id/progressBar"
+        android:layout_gravity="center"
+        style="?android:attr/progressBarStyle"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <com.geekbrains.progect999.core.CustomButton
+        android:id="@+id/finishButton"
+        android:text="@string/subscribed"
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"/>

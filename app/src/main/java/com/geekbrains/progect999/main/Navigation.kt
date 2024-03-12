@@ -9,5 +9,5 @@ interface Navigation {
     interface Observe : UpdateObserver<Screen>
     interface Mutable : Update,Observe
 
-    object Base : UiObservable.Single<Screen>(),Mutable
+    object Base : UiObservable.Single<Screen>(Screen.Empty),Mutable
 }

@@ -10,7 +10,7 @@ interface Screen {
     abstract class Add(private val fragmentClass: Class<out Fragment>) : Screen{
         override fun show(fragmentManager: FragmentManager, conteinerId: Int) {
            fragmentManager.beginTransaction()
-               .replace(conteinerId,fragmentClass.newInstance())
+               .replace(conteinerId,fragmentClass.getDeclaredConstructor().newInstance())
                .addToBackStack(fragmentClass.name)
                .commit()
         }
@@ -18,9 +18,21 @@ interface Screen {
     abstract class Replace(private val fragmentClass: Class<out Fragment>) : Screen{
         override fun show(fragmentManager: FragmentManager, conteinerId: Int) {
             fragmentManager.beginTransaction()
-                .replace(conteinerId,fragmentClass.newInstance())
+                .replace(conteinerId,fragmentClass.getDeclaredConstructor().newInstance())
                 .commit()
         }
+    }
+    object Pop : Screen{
+        override fun show(fragmentManager: FragmentManager, conteinerId: Int) {
+            fragmentManager.popBackStack()
+        }
+
+    }
+    object Empty : Screen{
+        override fun show(fragmentManager: FragmentManager, conteinerId: Int) {
+
+        }
+
     }
     object Dashboard : Replace(DashboardFragment::class.java)
     object Subscription : Add(SubscriptionFragment::class.java)

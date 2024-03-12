@@ -16,4 +16,10 @@ interface PremiumDashboardUiState {
         }
 
     }
+    object Empty : PremiumDashboardUiState {
+        override fun show(button: HideInShow, textView: HideInShow) {
+
+        }
+
+    }
 }

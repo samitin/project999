@@ -11,7 +11,7 @@ interface HandleDeath {
     /**
      * была ли смерть
      */
-    fun wasDeathHappened():Boolean
+    fun didDeathHappen():Boolean
     /**
      * смерть обработана
      */
@@ -25,7 +25,7 @@ interface HandleDeath {
            deathHappened = false
         }
 
-        override fun wasDeathHappened():Boolean {
+        override fun didDeathHappen():Boolean {
             return deathHappened
         }
 
