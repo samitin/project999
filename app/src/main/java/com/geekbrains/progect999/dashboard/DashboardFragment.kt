@@ -33,7 +33,7 @@ class DashboardFragment : BaseFragment<DashboardRepresentative>(R.layout.fragmen
             representative.play()
         }
         val textView = view.findViewById<CustomTextView>(R.id.showPlayingTextView)
-        callback = object : UiObserver<PremiumDashboardUiState> {
+        callback = object : DashboardObserver {
             override fun update(data: PremiumDashboardUiState) {
                 data.show(button!!,textView!!)
             }
@@ -64,4 +64,8 @@ class DashboardFragment : BaseFragment<DashboardRepresentative>(R.layout.fragmen
         super.onDestroyView()
         Log.d("jsc91","Dashboard onDestroyView")
     }
+}
+
+interface DashboardObserver : UiObserver<PremiumDashboardUiState> {
+    override fun isEmpty(): Boolean = false
 }

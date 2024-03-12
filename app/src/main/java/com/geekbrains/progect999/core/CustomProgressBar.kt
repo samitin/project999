@@ -4,14 +4,16 @@ import android.content.Context
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatTextView
+import android.widget.ProgressBar
 
-class CustomTextView: AppCompatTextView ,HideInShow{
+class CustomProgressBar : ProgressBar , HideInShow {
     constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context,attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context,attrs,defStyleAttr)
-
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
     override fun onSaveInstanceState(): Parcelable? = super.onSaveInstanceState()?.let {
         val visibilityState = VisibilityState(it)
         visibilityState.visible = visibility

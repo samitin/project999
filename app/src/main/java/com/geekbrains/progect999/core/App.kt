@@ -45,19 +45,7 @@ class App : Application(),ProvideRepresentative ,ClearRepresentative{
 
 
 
-    private val handleDeath = HandleDeath.Base()
-    fun activityCreated(firstOpening : Boolean){
-        if (firstOpening){
-            handleDeath.firstOpening()
-        }else{
-            if (handleDeath.wasDeathHappened()){
-                log("death happened смерть случилась")
-                handleDeath.deathHandled()
-            }else{
-                log("just activity recreate просто воссоздание активности")
-            }
-        }
-    }
+
 
 
 }

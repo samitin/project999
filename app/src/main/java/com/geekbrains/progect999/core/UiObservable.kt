@@ -6,33 +6,32 @@ interface UiObservable<T:Any> : UiUpdate<T> ,UpdateObserver<T>{
     /**
      *обновить наблюдатель
      */
+    fun clear()
 
-
-    open class Single<T : Any> : UiObservable<T> {
+    abstract class Single<T : Any>(
+        private val empty: T
+    ) : UiObservable<T> {
         @Volatile
-        private var cache : T? = null
+        protected var cache : T = empty
         @Volatile
         private var observer: UiObserver<T> = UiObserver.Empty()
-
+        override fun clear() {
+            cache = empty
+        }
 
         @MainThread
         override fun updateObserver(uiObserver: UiObserver<T>) = synchronized(Single::class.java) {
             observer = uiObserver
             if (!observer.isEmpty()){
-                cache?.let {
-                    observer.update(it)
-                    cache = null
-                }
+                observer.update(cache)
+
             }
         }
 
         override fun update(data: T) = synchronized(Single::class.java) {
-            if (observer.isEmpty()){
-                cache = data
-            }else{
-                cache = null
-                observer.update(data)
-            }
+            cache = data
+            if (!observer.isEmpty())
+                 observer.update(cache)
         }
 
     }
@@ -50,8 +49,8 @@ interface UpdateObserver<T:Any>{
 }
 
 
-interface UiObserver<T:Any> : UiUpdate<T> {
-    fun isEmpty():Boolean = false
+interface UiObserver<T:Any> : UiUpdate<T>,IsEmpty {
+
     class Empty<T : Any> : UiObserver<T> {
         /**
          * пусто?
