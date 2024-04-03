@@ -10,7 +10,7 @@ interface SaveAndRestoreSubscriptionUiState {
     interface Restore : SaveAndRestoreState.Restore<SubscriptionUiState>
     interface Mutable : Save,Restore
     class Base(bundle: Bundle?) : SaveAndRestoreState.Abstract<SubscriptionUiState>(
-        bundle, KEY,SubscriptionUiState::class.java //todo check restore Tiramisu
+        bundle, KEY,SubscriptionUiState::class.java
     ),Mutable{
 
     }

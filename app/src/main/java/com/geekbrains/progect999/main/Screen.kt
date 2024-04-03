@@ -6,6 +6,7 @@ import com.geekbrains.progect999.dashboard.DashboardFragment
 import com.geekbrains.progect999.subscription.SubscriptionFragment
 
 interface Screen {
+    fun observed(representative: MainRepresentative) = representative
     fun show(fragmentManager: FragmentManager,conteinerId:Int)
     abstract class Add(private val fragmentClass: Class<out Fragment>) : Screen{
         override fun show(fragmentManager: FragmentManager, conteinerId: Int) {

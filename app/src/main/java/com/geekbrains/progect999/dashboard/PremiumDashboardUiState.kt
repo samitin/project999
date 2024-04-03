@@ -8,6 +8,7 @@ import com.geekbrains.progect999.core.CustomTextView
 import com.geekbrains.progect999.core.HideInShow
 
 interface PremiumDashboardUiState {
+    fun observed(representative: DashboardRepresentative) = representative
     fun show(button: HideInShow,textView: HideInShow)
     object Playing : PremiumDashboardUiState {
         override fun show(button: HideInShow,textView: HideInShow) {

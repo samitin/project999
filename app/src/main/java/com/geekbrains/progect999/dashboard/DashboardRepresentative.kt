@@ -6,6 +6,7 @@ import com.geekbrains.progect999.main.Navigation
 import com.geekbrains.progect999.main.Screen
 
 interface DashboardRepresentative :Representative<PremiumDashboardUiState> {
+    fun observed() = Unit
     fun play()
     class Base(private val navigation: Navigation.Update) : DashboardRepresentative{
         override fun play() {
@@ -15,6 +16,7 @@ interface DashboardRepresentative :Representative<PremiumDashboardUiState> {
     }
 
     class Premium(private val observable:PremiumDashboardObservable) : DashboardRepresentative {
+        override fun observed() = observable.clear()
         override fun play() = observable.update(PremiumDashboardUiState.Playing)
         override fun startGettingUpdates(callBack: UiObserver<PremiumDashboardUiState>) = observable.updateObserver(callBack)
         override fun stopGettingUpdates() = observable.updateObserver()
