@@ -7,7 +7,9 @@ import com.geekbrains.progect999.core.UpdateObserver
 interface Navigation {
     interface Update : UiUpdate<Screen>
     interface Observe : UpdateObserver<Screen>
-    interface Mutable : Update,Observe
+    interface Mutable : Update,Observe{
+        fun clear()
+    }
 
     object Base : UiObservable.Single<Screen>(Screen.Empty),Mutable
 }

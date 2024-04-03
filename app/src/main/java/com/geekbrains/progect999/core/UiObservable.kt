@@ -22,16 +22,13 @@ interface UiObservable<T:Any> : UiUpdate<T> ,UpdateObserver<T>{
         @MainThread
         override fun updateObserver(uiObserver: UiObserver<T>) = synchronized(Single::class.java) {
             observer = uiObserver
-            if (!observer.isEmpty()){
-                observer.update(cache)
+            observer.update(cache)
 
-            }
         }
 
         override fun update(data: T) = synchronized(Single::class.java) {
             cache = data
-            if (!observer.isEmpty())
-                 observer.update(cache)
+            observer.update(cache)
         }
 
     }
@@ -49,13 +46,9 @@ interface UpdateObserver<T:Any>{
 }
 
 
-interface UiObserver<T:Any> : UiUpdate<T>,IsEmpty {
+interface UiObserver<T:Any> : UiUpdate<T> {
 
     class Empty<T : Any> : UiObserver<T> {
-        /**
-         * пусто?
-         */
-        override fun isEmpty() = true
         /**
          * обновить
          */

@@ -9,6 +9,8 @@ import com.geekbrains.progect999.core.UiObserver
 @MainThread
 interface MainRepresentative :Representative<Screen>{
 
+
+    fun observed()
     /**
      * запустить асинхронный режим
      */
@@ -26,6 +28,8 @@ interface MainRepresentative :Representative<Screen>{
             navigation.updateObserver(callBack)
         }
         override fun stopGettingUpdates() = navigation.updateObserver()
+        override fun observed() = navigation.clear()
+
         override fun showDashboard(firstTime: Boolean) {
             if (firstTime)
                 navigation.update(Screen.Dashboard)
