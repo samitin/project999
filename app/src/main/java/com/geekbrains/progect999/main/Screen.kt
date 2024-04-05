@@ -3,7 +3,7 @@ package com.geekbrains.progect999.main
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import com.geekbrains.progect999.dashboard.DashboardFragment
-import com.geekbrains.progect999.subscription.SubscriptionFragment
+import com.geekbrains.progect999.subscription.presentation.SubscriptionFragment
 
 interface Screen {
     fun observed(representative: MainRepresentative) = representative

@@ -47,8 +47,10 @@ interface UpdateObserver<T:Any>{
 
 
 interface UiObserver<T:Any> : UiUpdate<T> {
+    fun isEmpty(): Boolean = false
 
     class Empty<T : Any> : UiObserver<T> {
+        override fun isEmpty(): Boolean = true
         /**
          * обновить
          */

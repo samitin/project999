@@ -2,12 +2,6 @@ package com.geekbrains.progect999.core
 
 import android.app.Application
 import android.util.Log
-import com.geekbrains.progect999.dashboard.DashboardModule
-import com.geekbrains.progect999.dashboard.DashboardRepresentative
-import com.geekbrains.progect999.main.MainModule
-import com.geekbrains.progect999.main.MainRepresentative
-import com.geekbrains.progect999.subscription.SubscriptionModule
-import com.geekbrains.progect999.subscription.SubscriptionRepresentative
 
 class App : Application(),ProvideRepresentative ,ClearRepresentative{
 

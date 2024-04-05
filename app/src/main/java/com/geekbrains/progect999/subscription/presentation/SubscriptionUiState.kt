@@ -1,7 +1,6 @@
-package com.geekbrains.progect999.subscription
+package com.geekbrains.progect999.subscription.presentation
 
 import android.util.Log
-import android.widget.ProgressBar
 import com.geekbrains.progect999.core.HideInShow
 import java.io.Serializable
 
@@ -20,7 +19,7 @@ interface SubscriptionUiState : Serializable{
         }
     }
 
-    object Loading : SubscriptionUiState{
+    object Loading : SubscriptionUiState {
         override fun show(subscribeButton: HideInShow, progressBar: HideInShow, finishButton: HideInShow) {
             subscribeButton.hide()
             progressBar.show()
@@ -31,13 +30,13 @@ interface SubscriptionUiState : Serializable{
             representative: SubscriptionInner,
             observable: SubscriptionObservable
         ) {
-            Log.d("jsc91","LoadingUiState#subscribeInner")
+//            Log.d("jsc91","LoadingUiState#subscribeInner")
             representative.subscribeInner()
         }
 
         override fun observed(representative: SubscriptionObserved) = Unit
     }
-    object Success : SubscriptionUiState{
+    object Success : SubscriptionUiState {
 
         override fun show(subscribeButton: HideInShow, progressBar: HideInShow, finishButton: HideInShow) {
             subscribeButton.hide()

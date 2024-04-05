@@ -1,4 +1,4 @@
-package com.geekbrains.progect999.subscription
+package com.geekbrains.progect999.subscription.presentation
 
 import android.os.Bundle
 import android.util.Log
@@ -27,7 +27,7 @@ class SubscriptionFragment : BaseFragment<SubscriptionRepresentative>(R.layout.f
         finishButton.setOnClickListener {
             representative.finish()
         }
-        observer = object : SubscriptionObserver{
+        observer = object : SubscriptionObserver {
             override fun update(data: SubscriptionUiState) = requireActivity().runOnUiThread {
                 data.observed(representative)
                data.show(subscribeButton, progressBar, finishButton)

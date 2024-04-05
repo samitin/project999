@@ -5,6 +5,9 @@ import com.geekbrains.progect999.core.HandleDeath
 import com.geekbrains.progect999.core.Module
 import com.geekbrains.progect999.core.ProvideSharedPreferences
 import com.geekbrains.progect999.main.UserPremiumCache
+import com.geekbrains.progect999.subscription.domain.SubscriptionInteractor
+import com.geekbrains.progect999.subscription.presentation.SubscriptionObservable
+import com.geekbrains.progect999.subscription.presentation.SubscriptionRepresentative
 
 class SubscriptionModule(
     private val core:ProvideSharedPreferences.Core,
@@ -14,7 +17,9 @@ class SubscriptionModule(
         HandleDeath.Base(),
         SubscriptionObservable.Base(),
         clear,
-        UserPremiumCache.Base(core.sharedPreferences()),
+        SubscriptionInteractor.Base(
+            UserPremiumCache.Base(core.sharedPreferences())
+        ),
         core.navigation()
     )
 }

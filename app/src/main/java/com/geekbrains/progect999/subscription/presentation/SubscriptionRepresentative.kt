@@ -1,4 +1,4 @@
-package com.geekbrains.progect999.subscription
+package com.geekbrains.progect999.subscription.presentation
 
 import android.util.Log
 import androidx.annotation.MainThread
@@ -10,9 +10,10 @@ import com.geekbrains.progect999.core.UiObserver
 import com.geekbrains.progect999.dashboard.DashboardRepresentative
 import com.geekbrains.progect999.main.Navigation
 import com.geekbrains.progect999.main.Screen
-import com.geekbrains.progect999.main.UserPremiumCache
+import com.geekbrains.progect999.subscription.domain.SubscriptionInteractor
 
-interface SubscriptionRepresentative :Representative<SubscriptionUiState>,SaveSubscriptionUiState,SubscriptionObserved,SubscriptionInner {
+interface SubscriptionRepresentative :Representative<SubscriptionUiState>, SaveSubscriptionUiState,
+    SubscriptionObserved, SubscriptionInner {
 
 
     fun init(restoreSubscriptionUiState: SaveAndRestoreSubscriptionUiState.Restore)
@@ -36,9 +37,9 @@ interface SubscriptionRepresentative :Representative<SubscriptionUiState>,SaveSu
     class Base(
        private val handleDeath: HandleDeath,
        private val observable: SubscriptionObservable,
-        private val clear: ClearRepresentative,
-        private val userPremiumCache:UserPremiumCache.Save,
-        private val navigation: Navigation.Update) : SubscriptionRepresentative {
+       private val clear: ClearRepresentative,
+       private val iteractor : SubscriptionInteractor,
+       private val navigation: Navigation.Update) : SubscriptionRepresentative, () -> Unit {
        override fun observed() = observable.clear()
 
        override fun init(restoreState: SaveAndRestoreSubscriptionUiState.Restore) {
@@ -47,50 +48,40 @@ interface SubscriptionRepresentative :Representative<SubscriptionUiState>,SaveSu
                    observable.update(SubscriptionUiState.Initial)
                }else {
                    if (handleDeath.didDeathHappen()) {
-
                        handleDeath.deathHandled()
-                       log("SubscriptionRepresentative#restoreAfterDeath")
-                       restoreState.restore().restoreAfterDeath(this,observable) //todo
+                       val uiState = restoreState.restore()
+                       uiState.restoreAfterDeath(this,observable) //todo
 
                    }
                }
        }
 
-       override fun saveState(saveState: SaveAndRestoreSubscriptionUiState.Save) {
+       override fun saveState(saveState: SaveAndRestoreSubscriptionUiState.Save) =
            observable.saveState(saveState)
-       }
-       private fun thread() = Thread{
-           Thread.sleep(10_000)
-           userPremiumCache.saveUserPremium()
-           observable.update(SubscriptionUiState.Success)
-       }
-
        override fun subscribe() {
             observable.update(SubscriptionUiState.Loading)
             subscribeInner()
         }
 
-       override fun subscribeInner() {
-           log("SubscriptionRepresentative#subscribeInner")
-           thread().start()
-       }
+       override fun subscribeInner() = iteractor.subscribe (this)
 
        override fun finish() {
-           clear.clear(DashboardRepresentative::class.java)
            clear.clear(SubscriptionRepresentative::class.java)
            navigation.update(Screen.Dashboard)
        }
-       private fun log(msg : String){
-           Log.d(App.TAG,msg)
+
+       override fun startGettingUpdates(callBack: UiObserver<SubscriptionUiState>) =
+           observable.updateObserver(callBack)
+
+       override fun stopGettingUpdates() =
+           observable.updateObserver(EmptySubscriptionObserver)
+       override fun invoke() {
+            observable.update(SubscriptionUiState.Success)
        }
-
-       override fun startGettingUpdates(callBack: UiObserver<SubscriptionUiState>) = observable.updateObserver(callBack)
-
-       override fun stopGettingUpdates() = observable.updateObserver()
-
-
-
    }
+}
+object EmptySubscriptionObserver : SubscriptionObserver {
+    override fun update(data: SubscriptionUiState) = Unit
 }
 interface SaveSubscriptionUiState{
     fun saveState(saveState: SaveAndRestoreSubscriptionUiState.Save)
