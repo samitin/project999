@@ -26,11 +26,7 @@ interface SubscriptionUiState : Serializable{
             finishButton.hide()
         }
 
-        override fun restoreAfterDeath(
-            representative: SubscriptionInner,
-            observable: SubscriptionObservable
-        ) {
-//            Log.d("jsc91","LoadingUiState#subscribeInner")
+        override fun restoreAfterDeath(representative: SubscriptionInner, observable: SubscriptionObservable) {
             representative.subscribeInner()
         }
 
@@ -45,18 +41,11 @@ interface SubscriptionUiState : Serializable{
         }
     }
     object Empty : SubscriptionUiState {
-        override fun show(
-            subscribeButton: HideInShow,
-            progressBar: HideInShow,
-            finishButton: HideInShow
-        ) {
-
+        override fun show(subscribeButton: HideInShow, progressBar: HideInShow, finishButton: HideInShow) {
         }
 
-        override fun restoreAfterDeath(
-            representative: SubscriptionInner,
-            observable: SubscriptionObservable
-        ) {
-            representative.subscribeInner()}
+        override fun restoreAfterDeath(representative: SubscriptionInner, observable: SubscriptionObservable) {
+            representative.subscribeInner()
+        }
     }
 }

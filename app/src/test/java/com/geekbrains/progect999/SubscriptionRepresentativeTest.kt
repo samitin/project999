@@ -3,6 +3,7 @@ package com.geekbrains.progect999
 import com.geekbrains.progect999.core.ClearRepresentative
 import com.geekbrains.progect999.core.HandleDeath
 import com.geekbrains.progect999.core.Representative
+import com.geekbrains.progect999.core.RunAsync
 import com.geekbrains.progect999.core.UiObserver
 import com.geekbrains.progect999.main.Navigation
 import com.geekbrains.progect999.main.Screen
@@ -13,6 +14,8 @@ import com.geekbrains.progect999.subscription.presentation.SubscriptionObservabl
 import com.geekbrains.progect999.subscription.presentation.SubscriptionObserver
 import com.geekbrains.progect999.subscription.presentation.SubscriptionRepresentative
 import com.geekbrains.progect999.subscription.presentation.SubscriptionUiState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -24,6 +27,7 @@ class SubscriptionRepresentativeTest {
     private lateinit var interactor: FakeInteractor
     private lateinit var navigation: FakeNavigation
     private lateinit var handleDeath: FakeHandleDeath
+    private lateinit var runAsync : FakeRunAsync
 
     @Before
     fun setup(){
@@ -32,7 +36,9 @@ class SubscriptionRepresentativeTest {
         interactor = FakeInteractor.Base()
         navigation = FakeNavigation.Base()
         handleDeath = FakeHandleDeath.Base()
+        runAsync = FakeRunAsync.Base()
         representative = SubscriptionRepresentative.Base(
+            runAsync,
             handleDeath,
             observable,
             clear,
@@ -55,7 +61,7 @@ class SubscriptionRepresentativeTest {
         representative.subscribe()
         observable.checkUiState(SubscriptionUiState.Loading)
         interactor.checkSubscribeCalledTimes(1)
-        interactor.pingCallback()
+        runAsync.pingResult()
         observable.checkUiState(SubscriptionUiState.Success)
 
         representative.observed()
@@ -137,7 +143,7 @@ class SubscriptionRepresentativeTest {
         representative.subscribe()
         observable.checkUiState(SubscriptionUiState.Loading)
         interactor.checkSubscribeCalledTimes(1)
-        interactor.pingCallback()
+        runAsync.pingResult()
         observable.checkUiState(SubscriptionUiState.Success)
         representative.stopGettingUpdates()
         observable.checkUpdateObserverCalled(EmptySubscriptionObserver)
@@ -168,7 +174,7 @@ class SubscriptionRepresentativeTest {
         representative.subscribe()
         observable.checkUiState(SubscriptionUiState.Loading)
         interactor.checkSubscribeCalledTimes(1)
-        interactor.pingCallback()
+        runAsync.pingResult()
         observable.checkUiState(SubscriptionUiState.Success)
         representative.observed()
         observable.checkClearCalled()
@@ -187,6 +193,31 @@ class SubscriptionRepresentativeTest {
         interactor.checkSubscribeCalledTimes(0)
     }
 
+    @Test
+    fun test_cannot_go_back(){
+        val callBack = object : SubscriptionObserver {
+            override fun update(data: SubscriptionUiState) = Unit
+        }
+        val saveAndRestore = FakeSaveAndRestore.Base()
+        representative.init(saveAndRestore)
+        representative.startGettingUpdates(callBack)
+        representative.subscribe()
+        representative.comeback()
+        runAsync.checkClearCalledTimes(0)
+    }
+    @Test
+    fun test_can_go_back(){
+        val callBack = object : SubscriptionObserver {
+            override fun update(data: SubscriptionUiState) = Unit
+        }
+        val saveAndRestore = FakeSaveAndRestore.Base()
+        representative.init(saveAndRestore)
+        representative.startGettingUpdates(callBack)
+        representative.subscribe()
+        runAsync.pingResult()
+        representative.comeback()
+        runAsync.checkClearCalledTimes(1)
+    }
 }
 private interface FakeSaveAndRestore : SaveAndRestoreSubscriptionUiState.Mutable{
 
@@ -233,22 +264,47 @@ private interface FakeClear : ClearRepresentative{
 }
 private interface FakeInteractor : SubscriptionInteractor{
     fun checkSubscribeCalledTimes(times: Int)
-    fun pingCallback()
     class Base : FakeInteractor{
-
-
-        override fun pingCallback() {
-            cashCallback.invoke()
-        }
         private var cashCallback : () -> Unit = {}
         private var subscribeCalledCount = 0
-        override fun subscribe(callBack: () -> Unit) {
+        override suspend fun subscribe() {
             subscribeCalledCount ++
-            cashCallback = callBack
         }
         override fun checkSubscribeCalledTimes(times: Int) {
             assertEquals(times,subscribeCalledCount)
         }
+    }
+}
+private interface FakeRunAsync : RunAsync{
+    fun checkClearCalledTimes(times: Int)
+    fun pingResult()
+    class Base : FakeRunAsync {
+        private var cashedBlock : (Any) -> Unit = {}
+        private var cashed : Any = Unit
+        private var clearCalledTimes =0
+        override fun checkClearCalledTimes(times: Int) {
+            assertEquals(times,clearCalledTimes)
+        }
+
+        override fun pingResult() {
+            cashedBlock.invoke(cashed)
+        }
+
+        override fun <T : Any> runAsync(
+            scope: CoroutineScope,
+            backgroundBlock: suspend () -> T,
+            uiBlock: (T) -> Unit
+        ) {
+            runBlocking {
+                cashed = backgroundBlock.invoke()
+                cashedBlock = uiBlock as (Any) -> Unit
+            }
+        }
+
+        override fun clear() {
+            clearCalledTimes++
+        }
+
     }
 }
 private interface FakeObservable : SubscriptionObservable{

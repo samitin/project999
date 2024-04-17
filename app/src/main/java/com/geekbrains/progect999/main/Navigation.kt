@@ -11,5 +11,5 @@ interface Navigation {
         fun clear()
     }
 
-    object Base : UiObservable.Single<Screen>(Screen.Empty),Mutable
+    object Base : UiObservable.Base<Screen>(Screen.Empty),Mutable
 }

@@ -36,5 +36,5 @@ interface Screen {
 
     }
     object Dashboard : Replace(DashboardFragment::class.java)
-    object Subscription : Add(SubscriptionFragment::class.java)
+    object Subscription : Replace(SubscriptionFragment::class.java)
 }
