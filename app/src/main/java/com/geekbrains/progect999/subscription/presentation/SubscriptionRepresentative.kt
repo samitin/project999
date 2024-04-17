@@ -4,42 +4,37 @@ import android.util.Log
 import androidx.annotation.MainThread
 import com.geekbrains.progect999.core.App
 import com.geekbrains.progect999.core.ClearRepresentative
+import com.geekbrains.progect999.core.DispatchersList
 import com.geekbrains.progect999.core.HandleDeath
 import com.geekbrains.progect999.core.Representative
+import com.geekbrains.progect999.core.RunAsync
 import com.geekbrains.progect999.core.UiObserver
 import com.geekbrains.progect999.dashboard.DashboardRepresentative
 import com.geekbrains.progect999.main.Navigation
 import com.geekbrains.progect999.main.Screen
 import com.geekbrains.progect999.subscription.domain.SubscriptionInteractor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 interface SubscriptionRepresentative :Representative<SubscriptionUiState>, SaveSubscriptionUiState,
     SubscriptionObserved, SubscriptionInner {
-
-
     fun init(restoreSubscriptionUiState: SaveAndRestoreSubscriptionUiState.Restore)
     @MainThread
     fun subscribe()
-
     fun finish()
-   /* private val handleDeath = HandleDeath.Base()
-    fun activityCreated(firstOpening : Boolean){
-        if (firstOpening){
-            handleDeath.firstOpening()
-        }else{
-            if (handleDeath.wasDeathHappened()){
-                log("death happened смерть случилась")
-                handleDeath.deathHandled()
-            }else{
-                log("just activity recreate просто воссоздание активности")
-            }
-        }
-    }*/
+    fun comeback()
+
     class Base(
-       private val handleDeath: HandleDeath,
-       private val observable: SubscriptionObservable,
-       private val clear: ClearRepresentative,
-       private val iteractor : SubscriptionInteractor,
-       private val navigation: Navigation.Update) : SubscriptionRepresentative, () -> Unit {
+        private val runAsync: RunAsync,
+        private val handleDeath: HandleDeath,
+        private val observable: SubscriptionObservable,
+        private val clear: ClearRepresentative,
+        private val iteractor : SubscriptionInteractor,
+        private val navigation: Navigation.Update) : Representative.Abstract<SubscriptionUiState>(runAsync),SubscriptionRepresentative {
+
        override fun observed() = observable.clear()
 
        override fun init(restoreState: SaveAndRestoreSubscriptionUiState.Restore) {
@@ -58,26 +53,40 @@ interface SubscriptionRepresentative :Representative<SubscriptionUiState>, SaveS
 
        override fun saveState(saveState: SaveAndRestoreSubscriptionUiState.Save) =
            observable.saveState(saveState)
+        private var canGoBack = true
        override fun subscribe() {
+           canGoBack = false
             observable.update(SubscriptionUiState.Loading)
             subscribeInner()
         }
 
-       override fun subscribeInner() = iteractor.subscribe (this)
+       override fun subscribeInner() {
+           handleAsync({
+               iteractor.subscribe()
+           }){
+               observable.update(SubscriptionUiState.Success)
+               canGoBack = true
+           }
+       }
 
        override fun finish() {
+           clear()
            clear.clear(SubscriptionRepresentative::class.java)
            navigation.update(Screen.Dashboard)
        }
 
-       override fun startGettingUpdates(callBack: UiObserver<SubscriptionUiState>) =
+        override fun comeback() {
+            if (canGoBack) {
+                finish()
+            }
+        }
+
+        override fun startGettingUpdates(callBack: UiObserver<SubscriptionUiState>) =
            observable.updateObserver(callBack)
 
        override fun stopGettingUpdates() =
            observable.updateObserver(EmptySubscriptionObserver)
-       override fun invoke() {
-            observable.update(SubscriptionUiState.Success)
-       }
+
    }
 }
 object EmptySubscriptionObserver : SubscriptionObserver {

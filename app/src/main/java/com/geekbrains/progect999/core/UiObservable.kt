@@ -7,26 +7,23 @@ interface UiObservable<T:Any> : UiUpdate<T> ,UpdateObserver<T>{
      *обновить наблюдатель
      */
     fun clear()
-
-    abstract class Single<T : Any>(
+    @MainThread
+    abstract class Base<T : Any>(
         private val empty: T
     ) : UiObservable<T> {
-        @Volatile
         protected var cache : T = empty
-        @Volatile
         private var observer: UiObserver<T> = UiObserver.Empty()
         override fun clear() {
             cache = empty
         }
 
-        @MainThread
-        override fun updateObserver(uiObserver: UiObserver<T>) = synchronized(Single::class.java) {
+        override fun updateObserver(uiObserver: UiObserver<T>) {
             observer = uiObserver
             observer.update(cache)
 
         }
 
-        override fun update(data: T) = synchronized(Single::class.java) {
+        override fun update(data: T) {
             cache = data
             observer.update(cache)
         }

@@ -2,19 +2,13 @@ package com.geekbrains.progect999.subscription.domain
 
 import com.geekbrains.progect999.main.UserPremiumCache
 import com.geekbrains.progect999.subscription.presentation.SubscriptionUiState
+import kotlinx.coroutines.delay
 
 interface SubscriptionInteractor {
-    fun subscribe(callBack: () -> Unit)
-    class Base(
-        private val userPremiumCache: UserPremiumCache.Save
-    ) : SubscriptionInteractor {
-
-        override fun subscribe(callBack: () -> Unit) {
-            Thread{
-                Thread.sleep(1000)
-                userPremiumCache.saveUserPremium()
-                callBack.invoke()
-            }.start()
+    suspend fun subscribe()
+    class Base(private val repository: SubscriptionRepository) : SubscriptionInteractor {
+        override suspend fun subscribe() {
+                repository.subscribe()
         }
     }
 }
