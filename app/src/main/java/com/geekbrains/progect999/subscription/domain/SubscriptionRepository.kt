@@ -1,5 +1,8 @@
 package com.geekbrains.progect999.subscription.domain
 
 interface SubscriptionRepository{
-    suspend fun subscribe()
+    fun isPremiumUser() : Boolean
+     fun subscribe()
+     suspend fun subscribeInternal()
+
 }

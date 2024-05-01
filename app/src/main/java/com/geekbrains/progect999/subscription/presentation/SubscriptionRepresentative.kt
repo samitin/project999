@@ -13,6 +13,7 @@ import com.geekbrains.progect999.dashboard.DashboardRepresentative
 import com.geekbrains.progect999.main.Navigation
 import com.geekbrains.progect999.main.Screen
 import com.geekbrains.progect999.subscription.domain.SubscriptionInteractor
+import com.geekbrains.progect999.subscription.domain.SubscriptionResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,6 +25,7 @@ interface SubscriptionRepresentative :Representative<SubscriptionUiState>, SaveS
     fun init(restoreSubscriptionUiState: SaveAndRestoreSubscriptionUiState.Restore)
     @MainThread
     fun subscribe()
+    suspend fun subscribeInternal()
     fun finish()
     fun comeback()
 
@@ -33,7 +35,8 @@ interface SubscriptionRepresentative :Representative<SubscriptionUiState>, SaveS
         private val observable: SubscriptionObservable,
         private val clear: ClearRepresentative,
         private val iteractor : SubscriptionInteractor,
-        private val navigation: Navigation.Update) : Representative.Abstract<SubscriptionUiState>(runAsync),SubscriptionRepresentative {
+        private val navigation: Navigation.Update,
+        private val mapper: SubscriptionResult.Mapper) : Representative.Abstract<SubscriptionUiState>(runAsync),SubscriptionRepresentative {
 
        override fun observed() = observable.clear()
 
@@ -59,14 +62,18 @@ interface SubscriptionRepresentative :Representative<SubscriptionUiState>, SaveS
             observable.update(SubscriptionUiState.Loading)
             subscribeInner()
         }
+        private val uiBlock: (SubscriptionResult) -> Unit = {result ->
+            result.map(mapper){canGoBack = it}
+        }
+        override suspend fun subscribeInternal() = handleAsyncInternal({
+            iteractor.subscribeInternal()
+        },uiBlock)
 
-       override fun subscribeInner() {
+
+        override fun subscribeInner() {
            handleAsync({
                iteractor.subscribe()
-           }){
-               observable.update(SubscriptionUiState.Success)
-               canGoBack = true
-           }
+           },uiBlock)
        }
 
        override fun finish() {

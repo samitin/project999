@@ -36,7 +36,7 @@ class CustomButton : AppCompatButton ,HideInShow{
     }
 }
 class VisibilityState : View.BaseSavedState{
-    var visible : Int = View.VISIBLE
+    var visible : Int = View.VISIBLE //todo
     constructor(superState: Parcelable) : super(superState)
     private constructor(parcelIn: Parcel) : super(parcelIn){
         visible = parcelIn.readInt()

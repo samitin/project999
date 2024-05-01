@@ -2,6 +2,7 @@ package com.geekbrains.progect999.core
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.work.WorkManager
 import com.geekbrains.progect999.main.Navigation
 
 interface ProvideSharedPreferences {
@@ -13,9 +14,12 @@ interface ProvideSharedPreferences {
     interface ProvideRunAsync{
         fun runAsync():RunAsync
     }
-    interface Core : ProvideNavigation, ProvideSharedPreferences,ProvideRunAsync{
+    interface ProvideWorkManager{
+        fun workManager() : WorkManager
+    }
+    interface Core : ProvideNavigation, ProvideSharedPreferences,ProvideRunAsync,ProvideWorkManager{
         class Base(private val context: Context):Core {
-            private val runAsync = RunAsync.Base(DispatchersList.Base())
+            private val runAsync by lazy { RunAsync.Base(DispatchersList.Base()) }
             private val navigation = Navigation.Base
             override fun navigation(): Navigation.Mutable = navigation
 
@@ -24,6 +28,7 @@ interface ProvideSharedPreferences {
             }
 
             override fun runAsync() = runAsync
+            override fun workManager(): WorkManager = WorkManager.getInstance(context)
         }
     }
 

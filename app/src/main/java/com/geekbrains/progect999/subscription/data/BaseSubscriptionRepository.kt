@@ -5,10 +5,18 @@ import com.geekbrains.progect999.subscription.domain.SubscriptionRepository
 import kotlinx.coroutines.delay
 
 class BaseSubscriptionRepository(
+    private val foregroundServiceWrapper: ForegroundServiceWrapper,
     private val cloudDataSource: SubscriptionCloudDataSource,
-    private val userPremiumCash:UserPremiumCache.Save,
+    private val userPremiumCash:UserPremiumCache.Mutable,
 ) : SubscriptionRepository {
-    override suspend fun subscribe() {
+    override fun isPremiumUser(): Boolean = userPremiumCash.isUserPremium()
+
+    override fun subscribe() {
+        foregroundServiceWrapper.start()
+
+    }
+
+    override suspend fun subscribeInternal() {
         cloudDataSource.subscribe()
         userPremiumCash.saveUserPremium()
     }

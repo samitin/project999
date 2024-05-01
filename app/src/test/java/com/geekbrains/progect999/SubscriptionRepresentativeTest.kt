@@ -8,6 +8,7 @@ import com.geekbrains.progect999.core.UiObserver
 import com.geekbrains.progect999.main.Navigation
 import com.geekbrains.progect999.main.Screen
 import com.geekbrains.progect999.subscription.domain.SubscriptionInteractor
+import com.geekbrains.progect999.subscription.domain.SubscriptionResult
 import com.geekbrains.progect999.subscription.presentation.EmptySubscriptionObserver
 import com.geekbrains.progect999.subscription.presentation.SaveAndRestoreSubscriptionUiState
 import com.geekbrains.progect999.subscription.presentation.SubscriptionObservable
@@ -19,7 +20,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-
+//fixme after loading representative refactoring
 class SubscriptionRepresentativeTest {
     private lateinit var representative: SubscriptionRepresentative
     private lateinit var observable: FakeObservable
@@ -43,7 +44,8 @@ class SubscriptionRepresentativeTest {
             observable,
             clear,
             interactor,
-            navigation)
+            navigation,
+            FakeMapper(observable))
     }
     @Test
     fun main_scenario(){
@@ -267,9 +269,15 @@ private interface FakeInteractor : SubscriptionInteractor{
     class Base : FakeInteractor{
         private var cashCallback : () -> Unit = {}
         private var subscribeCalledCount = 0
-        override suspend fun subscribe() {
+        override suspend fun subscribe(): SubscriptionResult {
             subscribeCalledCount ++
+            return SubscriptionResult.NoDataYet
         }
+
+        override suspend fun subscribeInternal(): SubscriptionResult {
+            return SubscriptionResult.Success
+        }
+
         override fun checkSubscribeCalledTimes(times: Int) {
             assertEquals(times,subscribeCalledCount)
         }
@@ -299,6 +307,13 @@ private interface FakeRunAsync : RunAsync{
                 cashed = backgroundBlock.invoke()
                 cashedBlock = uiBlock as (Any) -> Unit
             }
+        }
+
+        override suspend fun <T : Any> runAsync(
+            backgroundBlock: suspend () -> T,
+            uiBlock: (T) -> Unit
+        ) {
+            uiBlock.invoke(backgroundBlock.invoke())
         }
 
         override fun clear() {
@@ -377,4 +392,11 @@ private interface FakeHandleDeath : HandleDeath{
             deathHappened = false
         }
     }
+}
+private class FakeMapper(private val observable: FakeObservable): SubscriptionResult.Mapper{
+    override fun mapSuccess(canGoBackCallBack: (Boolean) -> Unit) {
+        observable.update(SubscriptionUiState.Success)
+        canGoBackCallBack.invoke(true)
+    }
+
 }
